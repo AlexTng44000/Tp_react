@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
+
 
 function Hackathon() {
     const [page, setPage] = useState(1);
@@ -44,12 +46,17 @@ function Hackathon() {
         <div>
             <h2>Liste des hackathons</h2>
             <ul>
-                {displayed.map((h) => (
-                    <li key={h.id}>
-                        <strong>{h.name}</strong> – {h.theme} (
-                        {new Date(h.date).toLocaleDateString()})
-                    </li>
-                ))}
+                <ul>
+                    {displayed.map((h) => (
+                        <li key={h.id}>
+                            <Link to={`/hackathons/${h.id}`}>
+                                <strong>{h.name}</strong>
+                            </Link>{" "}
+                            – {h.theme} ({new Date(h.date).toLocaleDateString()})
+                        </li>
+                    ))}
+                </ul>
+
             </ul>
 
             <div>
