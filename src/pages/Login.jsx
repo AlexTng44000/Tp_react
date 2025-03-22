@@ -2,6 +2,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 const schema = z.object({
     email: z.string().email("Email invalide"),
@@ -9,6 +10,7 @@ const schema = z.object({
 });
 
 function Login() {
+    const { login } = useAuth();
     const navigate = useNavigate();
     const {
         register,
@@ -30,7 +32,7 @@ function Login() {
             }
 
             const result = await response.json();
-            localStorage.setItem("token", result.token);
+            login(result.token);
             navigate("/");
         } catch (err) {
             console.error("Erreur lors de la connexion", err);
