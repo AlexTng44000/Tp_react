@@ -1,41 +1,81 @@
 import { useParams } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 function HackathonDetail() {
     const { id } = useParams();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
 
-    const fakeHackathon = {
-        1: { name: "Hackathon IA Santé", theme: "Santé connectée", date: "2025-04-10T09:00:00Z" },
-        2: { name: "Hackathon Sécurité Web", theme: "Cybersécurité", date: "2025-05-05T10:00:00Z" },
-        3: { name: "Hackathon Énergie", theme: "Tech durable", date: "2025-06-15T08:30:00Z" },
-        4: { name: "Hackathon Cloud", theme: "DevOps", date: "2025-07-01T09:00:00Z" },
-        5: { name: "Hackathon IA Juridique", theme: "LegalTech", date: "2025-08-12T14:00:00Z" }
-    };
-
-    const hackathon = fakeHackathon[id];
-
+    const [hackathon, setHackathon] = useState(null);
     const [teamName, setTeamName] = useState("");
     const [teamCode, setTeamCode] = useState("");
 
-    const handleCreateTeam = (e) => {
+    useEffect(() => {
+        fetch(`http://localhost:3002/hackathons/${id}`)
+            .then((res) => res.json())
+            .then((data) => setHackathon(data))
+            .catch((err) => console.error("Erreur chargement :", err));
+    }, [id]);
+
+    const handleCreateTeam = async (e) => {
         e.preventDefault();
-        alert(`Créer l’équipe : ${teamName}`);
+        try {
+            const res = await fetch("http://localhost:3002/teams/create", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${user.token}`,
+                },
+                body: JSON.stringify({
+                    name: teamName,
+                    hackathonId: parseInt(id),
+                }),
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                alert(error.error || "Erreur création");
+                return;
+            }
+
+            alert("Équipe créée !");
+            setTeamName("");
+        } catch (err) {
+            alert("Erreur technique");
+            console.error(err);
+        }
     };
 
-    const handleJoinTeam = (e) => {
+    const handleJoinTeam = async (e) => {
         e.preventDefault();
-        alert(`Rejoindre l’équipe avec le code : ${teamCode}`);
+        try {
+            const res = await fetch(`http://localhost:3002/teams/join/${teamCode}`, {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${user.token}`,
+                },
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                alert(error.error || "Erreur");
+                return;
+            }
+
+            alert("Rejoint !");
+            setTeamCode("");
+        } catch (err) {
+            alert("Erreur technique");
+        }
     };
 
-    if (!hackathon) return <p>Hackathon introuvable</p>;
+    if (!hackathon) return <p>Chargement...</p>;
 
     return (
         <div>
             <h2>{hackathon.name}</h2>
             <p>Thème : {hackathon.theme}</p>
-            <p>Date : {new Date(hackathon.date).toLocaleString()}</p>
+            <p>Date : {new Date(hackathon.startDate).toLocaleString()}</p>
 
             {isAuthenticated && (
                 <div>
@@ -54,13 +94,31 @@ function HackathonDetail() {
                     <form onSubmit={handleJoinTeam}>
                         <input
                             type="text"
-                            placeholder="Code de l’équipe"
+                            placeholder="ID de l’équipe"
                             value={teamCode}
                             onChange={(e) => setTeamCode(e.target.value)}
                         />
                         <button type="submit">Rejoindre</button>
                     </form>
                 </div>
+            )}
+
+            <h3>Équipes inscrites</h3>
+            {hackathon.teams.length === 0 ? (
+                <p>Aucune équipe pour l’instant.</p>
+            ) : (
+                <ul>
+                    {hackathon.teams.map((team) => (
+                        <li key={team.id}>
+                            <strong>{team.name}</strong>
+                            <ul>
+                                {team.users.map((user) => (
+                                    <li key={user.id}>{user.name}</li>
+                                ))}
+                            </ul>
+                        </li>
+                    ))}
+                </ul>
             )}
         </div>
     );

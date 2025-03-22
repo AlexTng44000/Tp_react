@@ -1,42 +1,51 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-
 
 function Hackathon() {
     const [page, setPage] = useState(1);
+    const [hackathons, setHackathons] = useState([]);
+    const [form, setForm] = useState({
+        name: "",
+        theme: "",
+        startDate: "",
+        endDate: "",
+        description: ""
+    });
 
-    const hackathons = [
-        {
-            id: 1,
-            name: "Hackathon IA Santé",
-            theme: "Santé connectée",
-            date: "2025-04-10T09:00:00Z",
-        },
-        {
-            id: 2,
-            name: "Hackathon Sécurité Web",
-            theme: "Cybersécurité",
-            date: "2025-05-05T10:00:00Z",
-        },
-        {
-            id: 3,
-            name: "Hackathon Énergie",
-            theme: "Tech durable",
-            date: "2025-06-15T08:30:00Z",
-        },
-        {
-            id: 4,
-            name: "Hackathon Cloud",
-            theme: "DevOps",
-            date: "2025-07-01T09:00:00Z",
-        },
-        {
-            id: 5,
-            name: "Hackathon IA Juridique",
-            theme: "LegalTech",
-            date: "2025-08-12T14:00:00Z",
+    useEffect(() => {
+        fetch("http://localhost:3002/hackathons?page=1&limit=10")
+            .then((res) => res.json())
+            .then((data) => setHackathons(data))
+            .catch((err) => console.error("Erreur de chargement :", err));
+    }, []);
+
+    const handleChange = (e) => {
+        setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleCreate = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await fetch("http://localhost:3002/hackathons", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(form),
+            });
+
+            if (!res.ok) {
+                const error = await res.json();
+                alert(error.error || "Erreur");
+                return;
+            }
+
+            const newHackathon = await res.json();
+            setHackathons((prev) => [...prev, newHackathon]);
+            setForm({ name: "", theme: "", startDate: "", endDate: "", description: "" });
+        } catch (err) {
+            alert("Erreur réseau");
+            console.error(err);
         }
-    ];
+    };
 
     const perPage = 2;
     const totalPages = Math.ceil(hackathons.length / perPage);
@@ -46,17 +55,14 @@ function Hackathon() {
         <div>
             <h2>Liste des hackathons</h2>
             <ul>
-                <ul>
-                    {displayed.map((h) => (
-                        <li key={h.id}>
-                            <Link to={`/hackathons/${h.id}`}>
-                                <strong>{h.name}</strong>
-                            </Link>{" "}
-                            – {h.theme} ({new Date(h.date).toLocaleDateString()})
-                        </li>
-                    ))}
-                </ul>
-
+                {displayed.map((h) => (
+                    <li key={h.id}>
+                        <Link to={`/hackathons/${h.id}`}>
+                            <strong>{h.name}</strong>
+                        </Link>{" "}
+                        – {h.theme} ({new Date(h.startDate).toLocaleDateString()})
+                    </li>
+                ))}
             </ul>
 
             <div>
@@ -71,6 +77,16 @@ function Hackathon() {
                     </button>
                 ))}
             </div>
+
+            <h3>Créer un nouveau hackathon</h3>
+            <form onSubmit={handleCreate}>
+                <input name="name" placeholder="Nom" value={form.name} onChange={handleChange} required />
+                <input name="theme" placeholder="Thème" value={form.theme} onChange={handleChange} required />
+                <input name="startDate" type="datetime-local" value={form.startDate} onChange={handleChange} required />
+                <input name="endDate" type="datetime-local" value={form.endDate} onChange={handleChange} required />
+                <input name="description" placeholder="Description" value={form.description} onChange={handleChange} required />
+                <button type="submit">Créer</button>
+            </form>
         </div>
     );
 }
