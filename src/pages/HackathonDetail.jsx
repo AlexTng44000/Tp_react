@@ -10,15 +10,25 @@ function HackathonDetail() {
     const [teamName, setTeamName] = useState("");
     const [teamCode, setTeamCode] = useState("");
 
+    const loadHackathon = async () => {
+        try {
+            const res = await fetch(`http://localhost:3002/hackathons/${id}`);
+            if (!res.ok) throw new Error("Erreur lors du chargement du hackathon");
+            const data = await res.json();
+            setHackathon(data);
+        } catch (err) {
+            console.error(err);
+            alert("Impossible de charger les données du hackathon");
+        }
+    };
+
     useEffect(() => {
-        fetch(`http://localhost:3002/hackathons/${id}`)
-            .then((res) => res.json())
-            .then((data) => setHackathon(data))
-            .catch((err) => console.error("Erreur chargement :", err));
+        loadHackathon();
     }, [id]);
 
     const handleCreateTeam = async (e) => {
         e.preventDefault();
+
         try {
             const res = await fetch("http://localhost:3002/teams/create", {
                 method: "POST",
@@ -34,20 +44,22 @@ function HackathonDetail() {
 
             if (!res.ok) {
                 const error = await res.json();
-                alert(error.error || "Erreur création");
+                alert(error.error || "Erreur lors de la création de l'équipe");
                 return;
             }
 
             alert("Équipe créée !");
             setTeamName("");
+            loadHackathon();
         } catch (err) {
-            alert("Erreur technique");
             console.error(err);
+            alert("Erreur technique lors de la création de l'équipe");
         }
     };
 
     const handleJoinTeam = async (e) => {
         e.preventDefault();
+
         try {
             const res = await fetch(`http://localhost:3002/teams/join/${teamCode}`, {
                 method: "POST",
@@ -58,14 +70,16 @@ function HackathonDetail() {
 
             if (!res.ok) {
                 const error = await res.json();
-                alert(error.error || "Erreur");
+                alert(error.error || "Erreur lors de l'ajout à l'équipe");
                 return;
             }
 
             alert("Rejoint !");
             setTeamCode("");
+            loadHackathon();
         } catch (err) {
-            alert("Erreur technique");
+            console.error(err);
+            alert("Erreur technique lors de l'ajout à l'équipe");
         }
     };
 
@@ -83,7 +97,7 @@ function HackathonDetail() {
                     <form onSubmit={handleCreateTeam}>
                         <input
                             type="text"
-                            placeholder="Nom de l’équipe"
+                            placeholder="Nom de l'équipe"
                             value={teamName}
                             onChange={(e) => setTeamName(e.target.value)}
                         />
@@ -94,7 +108,7 @@ function HackathonDetail() {
                     <form onSubmit={handleJoinTeam}>
                         <input
                             type="text"
-                            placeholder="ID de l’équipe"
+                            placeholder="Code de l'équipe"
                             value={teamCode}
                             onChange={(e) => setTeamCode(e.target.value)}
                         />
@@ -105,12 +119,12 @@ function HackathonDetail() {
 
             <h3>Équipes inscrites</h3>
             {hackathon.teams.length === 0 ? (
-                <p>Aucune équipe pour l’instant.</p>
+                <p>Aucune équipe inscrite.</p>
             ) : (
                 <ul>
                     {hackathon.teams.map((team) => (
                         <li key={team.id}>
-                            <strong>{team.name}</strong>
+                            <strong>[{team.id}] {team.name}</strong>
                             <ul>
                                 {team.users.map((user) => (
                                     <li key={user.id}>{user.name}</li>
@@ -118,6 +132,7 @@ function HackathonDetail() {
                             </ul>
                         </li>
                     ))}
+
                 </ul>
             )}
         </div>
