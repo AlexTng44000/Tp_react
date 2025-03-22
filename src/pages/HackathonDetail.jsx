@@ -1,9 +1,11 @@
 import { useParams } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
 
 function HackathonDetail() {
     const { id } = useParams();
+    const { isAuthenticated } = useAuth();
 
-    // Simuler des données
     const fakeHackathon = {
         1: { name: "Hackathon IA Santé", theme: "Santé connectée", date: "2025-04-10T09:00:00Z" },
         2: { name: "Hackathon Sécurité Web", theme: "Cybersécurité", date: "2025-05-05T10:00:00Z" },
@@ -14,15 +16,52 @@ function HackathonDetail() {
 
     const hackathon = fakeHackathon[id];
 
-    if (!hackathon) {
-        return <p>Hackathon introuvable</p>;
-    }
+    const [teamName, setTeamName] = useState("");
+    const [teamCode, setTeamCode] = useState("");
+
+    const handleCreateTeam = (e) => {
+        e.preventDefault();
+        alert(`Créer l’équipe : ${teamName}`);
+    };
+
+    const handleJoinTeam = (e) => {
+        e.preventDefault();
+        alert(`Rejoindre l’équipe avec le code : ${teamCode}`);
+    };
+
+    if (!hackathon) return <p>Hackathon introuvable</p>;
 
     return (
         <div>
             <h2>{hackathon.name}</h2>
             <p>Thème : {hackathon.theme}</p>
             <p>Date : {new Date(hackathon.date).toLocaleString()}</p>
+
+            {isAuthenticated && (
+                <div>
+                    <h3>Créer une équipe</h3>
+                    <form onSubmit={handleCreateTeam}>
+                        <input
+                            type="text"
+                            placeholder="Nom de l’équipe"
+                            value={teamName}
+                            onChange={(e) => setTeamName(e.target.value)}
+                        />
+                        <button type="submit">Créer</button>
+                    </form>
+
+                    <h3>Rejoindre une équipe</h3>
+                    <form onSubmit={handleJoinTeam}>
+                        <input
+                            type="text"
+                            placeholder="Code de l’équipe"
+                            value={teamCode}
+                            onChange={(e) => setTeamCode(e.target.value)}
+                        />
+                        <button type="submit">Rejoindre</button>
+                    </form>
+                </div>
+            )}
         </div>
     );
 }
