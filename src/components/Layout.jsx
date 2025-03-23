@@ -1,10 +1,20 @@
 import { useAuth } from "../context/AuthContext";
+import { useLocation } from "react-router-dom";
 import "./Layout.css";
-
 
 function Layout({ children }) {
     const { isAuthenticated, logout, user } = useAuth();
+    const location = useLocation();
 
+    let backgroundColor = "#ffffff";
+
+    if (location.pathname === "/") {
+        backgroundColor = "#f9f9f9";
+    } else if (location.pathname === "/hackathons") {
+        backgroundColor = "#eef7ff";
+    } else if (/^\/hackathons\/\d+$/.test(location.pathname)) {
+        backgroundColor = "#fff8e7";
+    }
 
     return (
         <>
@@ -26,7 +36,7 @@ function Layout({ children }) {
                     )}
                 </nav>
             </header>
-            <main>
+            <main style={{ backgroundColor, minHeight: "100vh", padding: "1rem" }}>
                 {children}
             </main>
         </>
