@@ -1,9 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useEffect, useState } from "react";
 
 function HackathonDetail() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const { isAuthenticated, user } = useAuth();
 
     const [hackathon, setHackathon] = useState(null);
@@ -28,7 +29,6 @@ function HackathonDetail() {
 
     const handleCreateTeam = async (e) => {
         e.preventDefault();
-
         try {
             const res = await fetch("http://localhost:3002/teams/create", {
                 method: "POST",
@@ -59,7 +59,6 @@ function HackathonDetail() {
 
     const handleJoinTeam = async (e) => {
         e.preventDefault();
-
         try {
             const res = await fetch(`http://localhost:3002/teams/join/${teamCode}`, {
                 method: "POST",
@@ -87,6 +86,8 @@ function HackathonDetail() {
 
     return (
         <div>
+            <button onClick={() => navigate("/hackathons")}>← Retour à la liste</button>
+
             <h2>{hackathon.name}</h2>
             <p>Thème : {hackathon.theme}</p>
             <p>Date : {new Date(hackathon.startDate).toLocaleString()}</p>
@@ -132,7 +133,6 @@ function HackathonDetail() {
                             </ul>
                         </li>
                     ))}
-
                 </ul>
             )}
         </div>

@@ -1,13 +1,17 @@
 import { useAuth } from "../context/AuthContext";
+import "./Layout.css";
+
 
 function Layout({ children }) {
     const { isAuthenticated, logout, user } = useAuth();
+
 
     return (
         <>
             <header>
                 <h1>HackTrack</h1>
                 <nav>
+                    <a href="/">Accueil</a>
                     <a href="/hackathons">Hackathons</a>
                     {isAuthenticated ? (
                         <>
