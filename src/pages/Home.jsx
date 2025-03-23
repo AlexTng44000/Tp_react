@@ -1,24 +1,15 @@
+import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+
 function Home() {
-    const hackathons = [
-        {
-            id: 1,
-            name: "Hackathon IA Santé",
-            theme: "Santé connectée",
-            date: "2025-04-10T09:00:00Z",
-        },
-        {
-            id: 2,
-            name: "Hackathon Sécurité Web",
-            theme: "Cybersécurité",
-            date: "2025-05-05T10:00:00Z",
-        },
-        {
-            id: 3,
-            name: "Hackathon Énergie",
-            theme: "Tech durable",
-            date: "2025-06-15T08:30:00Z",
-        },
-    ];
+    const [hackathons, setHackathons] = useState([]);
+
+    useEffect(() => {
+        fetch("http://localhost:3002/hackathons?page=1&limit=100")
+            .then(res => res.json())
+            .then(data => setHackathons(data))
+            .catch(err => console.error("Erreur de chargement :", err));
+    }, []);
 
     return (
         <div>
@@ -29,8 +20,10 @@ function Home() {
             <ul>
                 {hackathons.map((h) => (
                     <li key={h.id}>
-                        <strong>{h.name}</strong> – {h.theme} (
-                        {new Date(h.date).toLocaleDateString()})
+                        <Link to={`/hackathons/${h.id}`}>
+                            <strong>{h.name}</strong>
+                        </Link>{" "}
+                        – {h.theme} ({new Date(h.startDate).toLocaleDateString()})
                     </li>
                 ))}
             </ul>
