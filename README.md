@@ -1,12 +1,16 @@
 # React + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# Dans ce projet :     
+- J'affiche les hackathons à venir.  
+- Il y a une pagination qui limite l'affichage à 2 hackathons par page.  
+- Je ne peux pas rejoindre de Hackathons si je ne suis pas connecté.  
+- Le token de l'utilisateur en cours est sauvegardé dans le local storage.  
+- Je peux ajouter un Hackaton directement sur la page des hackathons avec sa date son thème et une description  
+- Une fois connecté je peux rejoindre/Créer des équipes dans les hackathons proposés (Bouton non affiché sinon)
+- Au niveaude l'inscription je dois avoir un mdp d'au moins 8 caractères (Validation avec zod + React Hook)
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# Pour lancer le projet :  
+> npm run dev dans le dossier Hacktrack
+> npm run dev dans le dossier Hacktrack-api
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
