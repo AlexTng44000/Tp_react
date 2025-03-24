@@ -11,6 +11,6 @@
 
 
 # Pour lancer le projet :  
-> npm run dev dans le dossier Hacktrack
+> npm run dev dans le dossier Hacktrack  
 > npm run dev dans le dossier Hacktrack-api
 
